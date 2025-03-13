@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pengusulan</title>
+    <link rel="stylesheet" href="form.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Form Pengusulan</h2>
+        <form id="usulanForm">
+            <label for="sheet">Pilih Status Kepegawaian:</label>
+            <select id="sheet" name="sheet" required>
+                <option value="">Pilih</option>
+                <option value="PPPK">PPPK</option>
+                <option value="PNS">PNS</option>
+            </select>
+
+            <label for="nip">NIP:</label>
+            <input type="text" id="nip" name="nip" required>
+
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" name="nama" required>
+
+            <label for="unitKerja">Unit Kerja:</label>
+            <input type="text" id="unitKerja" name="unitKerja" required>
+
+            <label for="jenisPengusulan">Jenis Pengusulan:</label>
+            <select id="jenisPengusulan" name="jenisPengusulan" required>
+                <option value="">Pilih</option>
+                <option value="Mutasi">Mutasi</option>
+                <option value="Gaji Berkala">Gaji Berkala</option>
+                <option value="Kenaikan Pangkat">Kenaikan Pangkat</option>
+                <option value="Pensiun">Pensiun</option>
+            </select>
+
+            <button type="submit">Kirim</button>
+        </form>
+        <p id="statusMessage"></p>
+    </div>
+    <div class="side-box left-box"></div>
+    <div class="side-box right-box">
+        <div id="picContainer">
+            <img id="picImage" src="profile.png" alt="Profile Picture">
+            <p id="picName">PIC</p>
+        </div>
+    </div>
+
+    <button id="logoutButton">Logout</button>
+
+    <script src="auth.js"></script>
+    <script src="form.js"></script>
+</body>
+</html>

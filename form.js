@@ -16,7 +16,7 @@ document.getElementById("usulanForm").addEventListener("submit", async function(
 
     const formData = { sheet, nip, nama, unitKerja, jenisPengusulan };
 
-    console.log(formData);
+    console.log("Data dikirim: ", formData);
     try {
         const response = await fetch("/api/proxy", {
             method: "POST",
@@ -38,7 +38,8 @@ document.getElementById("usulanForm").addEventListener("submit", async function(
             throw new Error(data.message || "Gagal mengirim data!");
         }
     } catch (error) {
-        statusMessage.textContent = error.message;
+        console.error("Error", error);
+        statusMessage.textContent = "Error: " + error.message;
         statusMessage.style.color = "red";
     }
 });

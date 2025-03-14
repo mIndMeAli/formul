@@ -18,7 +18,7 @@ document.getElementById("usulanForm").addEventListener("submit", async function(
 
     console.log("Data dikirim: ", formData);
     try {
-        const response = await fetch("/api/proxy", {
+        const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)

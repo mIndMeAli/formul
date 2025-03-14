@@ -16,6 +16,7 @@ document.getElementById("usulanForm").addEventListener("submit", async function(
 
     const formData = { sheet, nip, nama, unitKerja, jenisPengusulan };
 
+    console.log(formData);
     try {
         const response = await fetch("/api/proxy", {
             method: "POST",

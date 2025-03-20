@@ -1,4 +1,4 @@
-document.getElementById("loginForm").addEventListener("submit", async function(event) {
+document.getElementById("loginForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const password = document.getElementById("password").value.trim();
@@ -11,10 +11,19 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     }
 
     try {
-        const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy?login=true");
-        const users = await response.json();
+        const response = await fetch("/api/proxy?login=true");
 
-        const user = users.find(user => user.password === password);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Invalid data format from server");
+        }
+
+        const user = data.find(user => user.password === password);
         if (user) {
             sessionStorage.setItem("loggedInUser", JSON.stringify(user));
             window.location.href = "form.html";

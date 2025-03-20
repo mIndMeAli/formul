@@ -35,6 +35,17 @@
                 <option value="Pensiun">Pensiun</option>
             </select>
 
+            <label for="tanggalUsul">Tanggal Usul Diterima:</label>
+            <input type="date" id="tanggalUsul" name="tanggalUsul" readonly placeholder="Pilih Tanggal" required>
+
+            <hr>
+
+            <label>Upload File Excel ke PPPK:</label>
+            <input type="file" name="PPPK" id="uploadPPPK" accept=".xlsx">
+
+            <label>Upload File Excel ke PNS:</label>
+            <input type="file" name="PNS" id="uploadPNS" accept=".xlsx">
+
             <button type="submit">Kirim</button>
         </form>
         <p id="statusMessage"></p>
@@ -51,5 +62,6 @@
 
     <script src="auth.js"></script>
     <script src="form.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>

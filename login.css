@@ -1,3 +1,124 @@
-body {
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+    overflow: hidden;
+}
+
+/* Animasi Background */
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Tambahkan Efek Gelombang */
+body::before {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    filter: blur(100px);
+    top: -10%;
+    left: -10%;
+    animation: floating 10s infinite alternate ease-in-out;
+}
+
+@keyframes floating {
+    from { transform: translateY(0px); }
+    to { transform: translateY(50px); }
+}
+
+/* Container Login */
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    width: 350px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: fadeIn 1.5s ease-out;
+}
+
+/* Animasi Muncul */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Title Login */
+h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Input Password */
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Efek Hover pada Input */
+input[type="password"]:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 10px rgba(37, 117, 252, 0.5);
+    outline: none;
+}
+
+/* Tombol Login */
+button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #2575fc, #6a11cb);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efek Hover Tombol */
+button:hover {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    transform: scale(1.05);
+}
+
+/* Efek Klik */
+button:active {
+    transform: scale(0.98);
+}
+
+/* Pesan Login */
+#loginMessage {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: red;
 }

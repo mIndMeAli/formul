@@ -11,7 +11,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     }
 
     try {
-        const response = await fetch("/api/proxy?login=true");
+        const response = await fetch(`/api/proxy?login=true&password=${encodeURIComponent(password)}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -19,13 +19,8 @@ document.getElementById("loginForm").addEventListener("submit", async function (
 
         const data = await response.json();
 
-        if (!Array.isArray(data)) {
-            throw new Error("Invalid data format from server");
-        }
-
-        const user = data.find(user => user.password === password);
-        if (user) {
-            sessionStorage.setItem("loggedInUser", JSON.stringify(user));
+        if (data.success) {
+            sessionStorage.setItem("loggedInUser", JSON.stringify(data));
             window.location.href = "form.html";
         } else {
             loginMessage.textContent = "Password salah!";

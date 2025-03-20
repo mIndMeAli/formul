@@ -17,10 +17,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const text = await response.text();
-        console.log("Respons dari server:", text);
-
-        const data = JSON.parse(text);
+        const data = await response.json();
 
         if (!Array.isArray(data)) {
             throw new Error("Invalid data format from server");

@@ -31,6 +31,8 @@ app.get("/api/proxy", async (req, res) => {
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
             const users = await response.json();
+            console.log("Data dari Apps Script:", users);
+
             res.json(users);
         } catch (error) {
             console.error("GET Proxy Error:", error);

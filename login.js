@@ -20,7 +20,12 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         const data = await response.json();
 
         if (data.success) {
-            sessionStorage.setItem("loggedInUser", JSON.stringify(data));
+            // Simpan data login ke localStorage agar tetap bertahan
+            localStorage.setItem("loggedIn", "true");
+            localStorage.setItem("jenisPengusulan", data.jenisPengusulan);
+            localStorage.setItem("pic", data.pic);
+
+            // Arahkan ke form.html
             window.location.href = "form.html";
         } else {
             loginMessage.textContent = "Password salah!";

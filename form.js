@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const tanggalInput = document.getElementById("tanggalUsul");
 
     if (tanggalInput) {
-        tanggalInput.readOnly = true;
+        tanggalInput.style.pointerEvents = "auto";
 
         tanggalInput.addEventListener("change", function () {
             let date = new Date(this.value);
@@ -134,7 +134,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         tanggalInput.addEventListener("focus", function () {
-            this.type = "date"; // Saat diklik, ubah jadi input date agar bisa memilih
+            this.type = "date";
+            this.style.pointerEvents = "auto";
         });
 
         tanggalInput.addEventListener("blur", function () {

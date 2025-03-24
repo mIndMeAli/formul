@@ -30,17 +30,24 @@ body {
 .container {
     background: white;
     padding: 20px;
+    padding-top: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 350px;
     max-width: 100%;
+    max-height: 90vh;
     border: 1px solid #8a8a8a;
     position: relative;
     z-index: 1;
+    overflow-y: auto;
 }
 
 h2 {
+    position: relative;
     text-align: center;
+    padding: 10px 0;
+    background: white;
+    z-index: 10;
 }
 
 form {
@@ -113,7 +120,13 @@ button:hover {
 }
 
 #tanggalUsul {
-    pointer-events: none;
+    pointer-events: auto;
     cursor: pointer;
+    background: white;
     background-color: #f9f9f9;
+}
+
+#logoutButton {
+    display: block;
+    margin: 20px auto;
 }

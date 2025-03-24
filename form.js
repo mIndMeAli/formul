@@ -14,6 +14,12 @@ document.addEventListener("DOMContentLoaded", function() {
         window.location.href = "index.html";
     });
 
+    document.getElementById("sheet").addEventListener("change", function() {
+        const status = this.value;
+        document.getElementById("uploadPPPK").disabled = status !== "PPPK";
+        document.getElementById("uploadPNS").disabled = status !== "PNS";
+    });
+
     const uploadPPPK = document.getElementById("uploadPPPK");
     const uploadPNS = document.getElementById("uploadPNS");
     let fileDataPPPK = null;
@@ -123,19 +129,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
             this.setAttribute("data-value", this.value);
             this.value = formattedDate;
+            this.style.pointerEvents = "none";
         });
 
         tanggalInput.addEventListener("focus", function () {
             this.type = "date";
+            this.style.pointerEvents = "auto";
         });
 
         tanggalInput.addEventListener("blur", function () {
             this.type = "text";
-            this.value = this.getAttribute("data-value") 
-                ? new Date(this.getAttribute("data-value")).toLocaleDateString("id-ID", {
+            if (this.getAttribute("data-value")) {
+                this.value = new Date(this.getAttribute("data-value")).toLocaleDateString("id-ID", {
                     day: "2-digit", month: "long", year: "numeric"
-                }) 
-                : "";
+                });
+            } else {
+                this.value = "";
+            }
         });
     }
 

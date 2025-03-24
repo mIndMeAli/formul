@@ -4,11 +4,17 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     const password = document.getElementById("password").value.trim();
     const loginMessage = document.getElementById("loginMessage");
 
+    loginMessage.textContent = "";
+    loginMessage.style.color = "black";
+
     if (!password) {
         loginMessage.textContent = "Harap masukkan password!";
         loginMessage.style.color = "red";
         return;
     }
+
+    loginMessage.textContent = "Memuat...";
+    loginMessage.style.color = "blue";
 
     try {
         const response = await fetch(`/api/proxy?login=true&password=${encodeURIComponent(password)}`);
@@ -20,12 +26,13 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         const data = await response.json();
 
         if (data.success) {
-            // Simpan data login ke localStorage agar tetap bertahan
-            localStorage.setItem("loggedIn", "true");
-            localStorage.setItem("jenisPengusulan", data.jenisPengusulan);
-            localStorage.setItem("pic", data.pic);
+            // Simpan informasi user ke localStorage
+            localStorage.setItem("loggedInUser", JSON.stringify({
+                jenisPengusulan: data.jenisPengusulan,
+                pic: data.pic
+            }));
 
-            // Arahkan ke form.html
+            // Redirect ke form.html
             window.location.href = "form.html";
         } else {
             loginMessage.textContent = "Password salah!";

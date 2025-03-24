@@ -119,6 +119,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const tanggalInput = document.getElementById("tanggalUsul");
 
     if (tanggalInput) {
+        tanggalInput.readOnly = true;
+
         tanggalInput.addEventListener("change", function () {
             let date = new Date(this.value);
             if (isNaN(date)) return;
@@ -129,23 +131,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
             this.setAttribute("data-value", this.value);
             this.value = formattedDate;
-            this.style.pointerEvents = "none";
         });
 
         tanggalInput.addEventListener("focus", function () {
-            this.type = "date";
-            this.style.pointerEvents = "auto";
+            this.type = "date"; // Saat diklik, ubah jadi input date agar bisa memilih
         });
 
         tanggalInput.addEventListener("blur", function () {
-            this.type = "text";
+            this.type = "text"; // Kembalikan ke format teks
             if (this.getAttribute("data-value")) {
                 this.value = new Date(this.getAttribute("data-value")).toLocaleDateString("id-ID", {
                     day: "2-digit", month: "long", year: "numeric"
                 });
             } else {
                 this.value = "";
-            }
+        }
         });
     }
 

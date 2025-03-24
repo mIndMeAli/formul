@@ -1,18 +1,35 @@
 console.log("🚀 auth.js dijalankan!");
-console.log("📌 loggedIn:", localStorage.getItem("loggedIn"));
-console.log("📌 jenisPengusulan:", localStorage.getItem("jenisPengusulan"));
-console.log("📌 pic:", localStorage.getItem("pic"));
 
-if (!localStorage.getItem("loggedIn")) {
-    window.location.href = "index.html";
-} else {
-    document.getElementById("picName").textContent = localStorage.getItem("pic") || "Tidak Diketahui";
-}
+// Ambil data user dari localStorage
+const user = JSON.parse(localStorage.getItem("loggedInUser"));
 
-document.getElementById("logoutBtn").addEventListener("click", function() {
-    localStorage.removeItem("loggedIn"); 
-    localStorage.removeItem("jenisPengusulan");
-    localStorage.removeItem("pic");
-    
-    window.location.href = "index.html";
+console.log("📌 loggedIn:", user ? true : false);
+console.log("📌 jenisPengusulan:", user ? user.jenisPengusulan : "Tidak ada");
+console.log("📌 pic:", user ? user.pic : "Tidak ada");
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Cek apakah user sudah login
+    if (!user || !user.pic) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    // Cek elemen sebelum mengaksesnya
+    const picElement = document.getElementById("loggedInUser");
+    if (picElement) {
+        picElement.textContent = user.pic || "Tidak Diketahui";
+    } else {
+        console.warn("⚠️ Elemen loggedInUser tidak ditemukan di halaman.");
+    }
+
+    // Logout button
+    const logoutButton = document.getElementById("logoutBtn");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function() {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "index.html";
+        });
+    } else {
+        console.warn("⚠️ Tombol logout tidak ditemukan di halaman.");
+    }
 });

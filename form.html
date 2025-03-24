@@ -36,15 +36,15 @@
             </select>
 
             <label for="tanggalUsul">Tanggal Usul Diterima:</label>
-            <input type="date" id="tanggalUsul" name="tanggalUsul" readonly placeholder="Pilih Tanggal" required>
+            <input type="date" id="tanggalUsul" name="tanggalUsul" placeholder="Pilih Tanggal" required>
 
             <hr>
 
             <label>Upload File Excel ke PPPK:</label>
-            <input type="file" name="PPPK" id="uploadPPPK" accept=".xlsx">
+            <input type="file" name="PPPK" id="uploadPPPK" accept=".xlsx" disabled>
 
             <label>Upload File Excel ke PNS:</label>
-            <input type="file" name="PNS" id="uploadPNS" accept=".xlsx">
+            <input type="file" name="PNS" id="uploadPNS" accept=".xlsx" disabled>
 
             <button type="submit">Kirim</button>
         </form>
@@ -54,7 +54,7 @@
     <div class="side-box right-box">
         <div id="picContainer">
             <img id="picImage" src="profile.png" alt="Profile Picture">
-            <p>Login sebagai: <span id="picName"></span></p>
+            <p>Login sebagai: <span id="loggedInUser"></span></p>
         </div>
     </div>
 

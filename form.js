@@ -1,10 +1,13 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // Ambil data user dari localStorage
     const user = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (!user) {
+    
+    if (!user || !user.pic) {
         window.location.href = "index.html";
-    } else {
-        document.getElementById("loggedInUser").textContent = user.pic;
+        return;
     }
+
+    document.getElementById("loggedInUser").textContent = user.pic;
 
     document.getElementById("logoutButton").addEventListener("click", function() {
         localStorage.removeItem("loggedInUser");
@@ -16,13 +19,17 @@ document.addEventListener("DOMContentLoaded", function() {
     let fileDataPPPK = null;
     let fileDataPNS = null;
 
-    uploadPPPK.addEventListener("change", function(event) {
-        readExcelFile(event.target.files[0], "PPPK");
-    });
+    if (uploadPPPK) {
+        uploadPPPK.addEventListener("change", function(event) {
+            readExcelFile(event.target.files[0], "PPPK");
+        });
+    }
 
-    uploadPNS.addEventListener("change", function(event) {
-        readExcelFile(event.target.files[0], "PNS");
-    });
+    if (uploadPNS) {
+        uploadPNS.addEventListener("change", function(event) {
+            readExcelFile(event.target.files[0], "PNS");
+        });
+    }
 
     function readExcelFile(file, sheetName) {
         if (!file) return;
@@ -53,13 +60,12 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("usulanForm").addEventListener("submit", async function(event) {
         event.preventDefault();
 
-        const sheet = document.getElementById("sheet").value.trim();
-        const nip = document.getElementById("nip").value.trim();
-        const nama = document.getElementById("nama").value.trim();
-        const unitKerja = document.getElementById("unitKerja").value.trim();
-        const jenisPengusulan = document.getElementById("jenisPengusulan").value.trim();
-        const tanggalUsul = document.getElementById("tanggalUsul").getAttribute("data-value") || "";
-        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        const sheet = document.getElementById("sheet")?.value.trim();
+        const nip = document.getElementById("nip")?.value.trim();
+        const nama = document.getElementById("nama")?.value.trim();
+        const unitKerja = document.getElementById("unitKerja")?.value.trim();
+        const jenisPengusulan = document.getElementById("jenisPengusulan")?.value.trim();
+        const tanggalUsul = document.getElementById("tanggalUsul")?.getAttribute("data-value") || "";
 
         if (!sheet || !nip || !nama || !unitKerja || !jenisPengusulan) {
             showStatusMessage("Harap isi semua kolom!", "red");
@@ -94,6 +100,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.status === "success") {
                 showStatusMessage("Data berhasil dikirim!", "green");
                 document.getElementById("usulanForm").reset();
+                fileDataPPPK = null;
+                fileDataPNS = null;
             } else {
                 throw new Error(data.message || "Gagal mengirim data!");
             }
@@ -103,34 +111,39 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     const tanggalInput = document.getElementById("tanggalUsul");
-    tanggalInput.addEventListener("change", function () {
-        let date = new Date(this.value);
-        if (isNaN(date)) return;
 
-        let formattedDate = date.toLocaleDateString("id-ID", {
-            day: "2-digit", month: "long", year: "numeric"
+    if (tanggalInput) {
+        tanggalInput.addEventListener("change", function () {
+            let date = new Date(this.value);
+            if (isNaN(date)) return;
+
+            let formattedDate = date.toLocaleDateString("id-ID", {
+                day: "2-digit", month: "long", year: "numeric"
+            });
+
+            this.setAttribute("data-value", this.value);
+            this.value = formattedDate;
         });
 
-        this.setAttribute("data-value", this.value);
-        this.value = formattedDate;
-    });
+        tanggalInput.addEventListener("focus", function () {
+            this.type = "date";
+        });
 
-    tanggalInput.addEventListener("focus", function () {
-        this.type = "date";
-    });
-
-    tanggalInput.addEventListener("blur", function () {
-        this.type = "text";
-        this.value = this.getAttribute("data-value") 
-            ? new Date(this.getAttribute("data-value")).toLocaleDateString("id-ID", {
-                day: "2-digit", month: "long", year: "numeric"
-            }) 
-            : "";
-    });
+        tanggalInput.addEventListener("blur", function () {
+            this.type = "text";
+            this.value = this.getAttribute("data-value") 
+                ? new Date(this.getAttribute("data-value")).toLocaleDateString("id-ID", {
+                    day: "2-digit", month: "long", year: "numeric"
+                }) 
+                : "";
+        });
+    }
 
     function showStatusMessage(message, color) {
         const statusMessage = document.getElementById("statusMessage");
-        statusMessage.textContent = message;
-        statusMessage.style.color = color;
+        if (statusMessage) {
+            statusMessage.textContent = message;
+            statusMessage.style.color = color;
+        }
     }
 });

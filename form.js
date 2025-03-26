@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const nama = document.getElementById("nama")?.value.trim();
         const unitKerja = document.getElementById("unitKerja")?.value.trim();
         const jenisPengusulan = document.getElementById("jenisPengusulan")?.value.trim();
-        const tanggalUsul = document.getElementById("tanggalUsul")?.getAttribute("data-value") || "";
         const tanggalUsulRaw = document.getElementById("tanggalUsul").value.trim();
         
         if (!tanggalUsulRaw) {
@@ -76,12 +75,15 @@ document.addEventListener("DOMContentLoaded", function() {
             fileDataPNS: fileDataPNS || null
         };
 
-        let tanggalUsul = new Date(tanggalUsulRaw).toISOString().split("T")[0];
-        let [year, month, day] = tanggalUsul.split("-");
-        let formattedTanggalUsul = `${day}-${month}-${year}`;
+        let tanggalObj = new Date(tanggalUsulRaw);
+        let formattedTanggalUsul = `${tanggalObj.getDate().toString().padStart(2, '0')}-${(tanggalObj.getMonth() + 1).toString().padStart(2, '0')}-${tanggalObj.getFullYear()}`;
 
-        let formData = {
+        const formData = {
+            sheet, nip, nama, unitKerja, jenisPengusulan,
             tanggalUsul: formattedTanggalUsul,
+            pic: user.pic,
+            fileDataPPPK: fileDataPPPK || null,
+            fileDataPNS: fileDataPNS || null
         };
 
         console.log("Kirim data:", formData);

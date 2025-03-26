@@ -57,6 +57,12 @@ document.addEventListener("DOMContentLoaded", function() {
         const unitKerja = document.getElementById("unitKerja")?.value.trim();
         const jenisPengusulan = document.getElementById("jenisPengusulan")?.value.trim();
         const tanggalUsul = document.getElementById("tanggalUsul")?.getAttribute("data-value") || "";
+        const tanggalUsulRaw = document.getElementById("tanggalUsul").value.trim();
+        
+        if (!tanggalUsulRaw) {
+            showStatusMessage("Harap pilih tanggal!", "red");
+            return;
+        }
 
         if (!sheet || !nip || !nama || !unitKerja || !jenisPengusulan || !tanggalUsul) {
             showStatusMessage("Harap isi semua kolom!", "red");
@@ -69,6 +75,16 @@ document.addEventListener("DOMContentLoaded", function() {
             fileDataPPPK: fileDataPPPK || null,
             fileDataPNS: fileDataPNS || null
         };
+
+        let tanggalUsul = new Date(tanggalUsulRaw).toISOString().split("T")[0];
+        let [year, month, day] = tanggalUsul.split("-");
+        let formattedTanggalUsul = `${day}-${month}-${year}`;
+
+        let formData = {
+            tanggalUsul: formattedTanggalUsul,
+        };
+
+        console.log("Kirim data:", formData);
 
         try {
             const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
@@ -94,26 +110,30 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     const tanggalInput = document.getElementById("tanggalUsul");
+    
     if (tanggalInput) {
-        tanggalInput.style.pointerEvents = "auto";
         tanggalInput.addEventListener("change", function () {
             let date = new Date(this.value);
             if (isNaN(date)) return;
-            this.setAttribute("data-value", this.value);
-            this.value = date.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+
+            let formattedDate = date.toLocaleDateString("id-ID", {
+                day: "2-digit", month: "long", year: "numeric"
+            });
+            
+            this.setAttribute("data-formatted", formattedDate);
         });
+        
         tanggalInput.addEventListener("focus", function () {
             this.type = "date";
-            this.style.pointerEvents = "auto";
         });
+        
         tanggalInput.addEventListener("blur", function () {
-            if (this.getAttribute("data-value")) {
-                let date = new Date(this.getAttribute("data-value"));
-                this.value = date.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
-            } else {
-                this.value = "";
-            }
-        });
+        let formattedDate = this.getAttribute("data-formatted");
+        if (formattedDate) {
+            this.type = "text";
+            this.value = formattedDate;
+        }
+    });
     }
 
     function showStatusMessage(message, color) {

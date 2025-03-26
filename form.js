@@ -1,93 +1,73 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Ambil data user dari localStorage
     const user = JSON.parse(localStorage.getItem("loggedInUser"));
-    
     if (!user || !user.pic) {
         window.location.href = "index.html";
         return;
     }
 
     document.getElementById("loggedInUser").textContent = user.pic;
-
-    document.getElementById("logoutButton").addEventListener("click", function() {
+    document.getElementById("logoutButton")?.addEventListener("click", function() {
         localStorage.removeItem("loggedInUser");
         window.location.href = "index.html";
     });
 
-    document.getElementById("sheet").addEventListener("change", function() {
+    const sheetSelect = document.getElementById("sheet");
+    sheetSelect?.addEventListener("change", function() {
         const status = this.value;
         document.getElementById("uploadPPPK").disabled = status !== "PPPK";
         document.getElementById("uploadPNS").disabled = status !== "PNS";
     });
 
-    const uploadPPPK = document.getElementById("uploadPPPK");
-    const uploadPNS = document.getElementById("uploadPNS");
     let fileDataPPPK = null;
     let fileDataPNS = null;
 
-    if (uploadPPPK) {
-        uploadPPPK.addEventListener("change", function(event) {
-            readExcelFile(event.target.files[0], "PPPK");
-        });
-    }
-
-    if (uploadPNS) {
-        uploadPNS.addEventListener("change", function(event) {
-            readExcelFile(event.target.files[0], "PNS");
-        });
-    }
-
-    function readExcelFile(file, sheetName) {
-        if (!file) return;
-        if (!file.name.endsWith(".xlsx")) {
+    function handleFileUpload(event, sheetName) {
+        const file = event.target.files[0];
+        if (!file || !file.name.endsWith(".xlsx")) {
             alert("Hanya file .xlsx yang diterima!");
             return;
         }
 
         let reader = new FileReader();
         reader.readAsArrayBuffer(file);
-
-        reader.onload = function (event) {
-            let data = new Uint8Array(event.target.result);
+        reader.onload = function (e) {
+            let data = new Uint8Array(e.target.result);
             let workbook = XLSX.read(data, { type: "array" });
             let sheet = workbook.Sheets[workbook.SheetNames[0]];
             let jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-            if (sheetName === "PPPK") {
-                fileDataPPPK = jsonData;
-            } else if (sheetName === "PNS") {
-                fileDataPNS = jsonData;
-            }
-
-            console.log(`Data ${sheetName}:`, jsonData);
+            
+            if (sheetName === "PPPK") fileDataPPPK = jsonData;
+            if (sheetName === "PNS") fileDataPNS = jsonData;
         };
     }
 
-    document.getElementById("usulanForm").addEventListener("submit", async function(event) {
-        event.preventDefault();
+    document.getElementById("uploadPPPK")?.addEventListener("change", function(event) {
+        handleFileUpload(event, "PPPK");
+    });
+    document.getElementById("uploadPNS")?.addEventListener("change", function(event) {
+        handleFileUpload(event, "PNS");
+    });
 
-        const sheet = document.getElementById("sheet")?.value.trim();
+    document.getElementById("usulanForm")?.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        
+        const sheet = sheetSelect?.value.trim();
         const nip = document.getElementById("nip")?.value.trim();
         const nama = document.getElementById("nama")?.value.trim();
         const unitKerja = document.getElementById("unitKerja")?.value.trim();
         const jenisPengusulan = document.getElementById("jenisPengusulan")?.value.trim();
         const tanggalUsul = document.getElementById("tanggalUsul")?.getAttribute("data-value") || "";
 
-        if (!sheet || !nip || !nama || !unitKerja || !jenisPengusulan) {
+        if (!sheet || !nip || !nama || !unitKerja || !jenisPengusulan || !tanggalUsul) {
             showStatusMessage("Harap isi semua kolom!", "red");
             return;
         }
 
-        let formData = {
-            sheet,
-            nip,
-            nama,
-            unitKerja,
-            jenisPengusulan,
-            tanggalUsul,
-            pic: user.pic,
-            fileDataPPPK,
-            fileDataPNS
+        const formData = {
+            sheet, nip, nama, unitKerja, jenisPengusulan,
+            tanggalUsul, pic: user.pic,
+            fileDataPPPK: fileDataPPPK || null,
+            fileDataPNS: fileDataPNS || null
         };
 
         try {
@@ -97,12 +77,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 body: JSON.stringify(formData)
             });
 
-            if (!response.ok) {
-                throw new Error("Gagal menghubungi server. Coba lagi nanti.");
-            }
-
+            if (!response.ok) throw new Error("Gagal menghubungi server.");
             const data = await response.json();
-
+            
             if (data.status === "success") {
                 showStatusMessage("Data berhasil dikirim!", "green");
                 document.getElementById("usulanForm").reset();
@@ -117,36 +94,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     const tanggalInput = document.getElementById("tanggalUsul");
-
     if (tanggalInput) {
         tanggalInput.style.pointerEvents = "auto";
-
         tanggalInput.addEventListener("change", function () {
             let date = new Date(this.value);
             if (isNaN(date)) return;
-
-            let formattedDate = date.toLocaleDateString("id-ID", {
-                day: "2-digit", month: "long", year: "numeric"
-            });
-
             this.setAttribute("data-value", this.value);
-            this.value = formattedDate;
+            this.value = date.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
         });
-
         tanggalInput.addEventListener("focus", function () {
             this.type = "date";
             this.style.pointerEvents = "auto";
         });
-
         tanggalInput.addEventListener("blur", function () {
-            this.type = "text"; // Kembalikan ke format teks
             if (this.getAttribute("data-value")) {
-                this.value = new Date(this.getAttribute("data-value")).toLocaleDateString("id-ID", {
-                    day: "2-digit", month: "long", year: "numeric"
-                });
+                let date = new Date(this.getAttribute("data-value"));
+                this.value = date.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
             } else {
                 this.value = "";
-        }
+            }
         });
     }
 

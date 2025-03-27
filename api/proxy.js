@@ -17,10 +17,13 @@ app.post("/api/proxy", async (req, res) => {
             body: JSON.stringify(req.body),
         });
 
-        const text = await response.text(); // Ambil response dalam teks untuk debugging
-        console.log("🔍 Response dari Apps Script:", text);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-        // **Cek apakah response benar-benar JSON**
+        const text = await response.text();
+        console.log("🔍 Response dari Apps Script (POST):", text);
+
         if (!text.startsWith("{")) {
             throw new Error("Response bukan JSON: " + text);
         }
@@ -40,9 +43,16 @@ app.get("/api/proxy", async (req, res) => {
         console.log("🔄 Incoming GET request:", req.query);
 
         if (login === "true" && password) {
-            const response = await fetch(`${url}?login=true&password=${encodeURIComponent(password)}`);
-            const text = await response.text();
+            const fullUrl = `${url}?login=true&password=${encodeURIComponent(password)}`;
+            console.log("🔗 Fetching URL:", fullUrl); // Debugging URL
 
+            const response = await fetch(fullUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const text = await response.text();
             console.log("🔍 Response dari Apps Script (GET):", text);
 
             if (!text.startsWith("{")) {
@@ -52,7 +62,7 @@ app.get("/api/proxy", async (req, res) => {
             const data = JSON.parse(text);
             res.json(data);
         } else {
-            res.status(400).json({ status: "error", message: "Invalid request" });
+            res.status(400).json({ status: "error", message: "Invalid request: missing login or password" });
         }
     } catch (error) {
         console.error("🚨 GET Proxy Error:", error);

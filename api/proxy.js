@@ -40,7 +40,7 @@ app.get("/api/proxy", async (req, res) => {
         console.log("🔄 Incoming GET request:", req.query);
 
         if (login === "true" && password) {
-            const response = await fetch(${url}?login=true&password=${encodeURIComponent(password)});
+            const response = await fetch(`${url}?login=true&password=${encodeURIComponent(password)}`);
             const text = await response.text();
 
             console.log("🔍 Response dari Apps Script (GET):", text);

@@ -17,7 +17,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     loginMessage.style.color = "blue";
 
     try {
-        const response = await fetch(/api/proxy?login=true&password=${encodeURIComponent(password)});
+        const response = await fetch(`/api/proxy?login=true&password=${encodeURIComponent(password)}`);
 
         if (!response.ok) {
             throw new Error(HTTP error! Status: ${response.status});

@@ -5,6 +5,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     const password = passwordInput.value.trim();
     const loginMessage = document.getElementById("loginMessage");
 
+    // Reset pesan login
     loginMessage.textContent = "";
     loginMessage.style.color = "black";
 
@@ -18,28 +19,39 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     loginMessage.style.color = "blue";
 
     try {
+        // Fetch ke proxy untuk verifikasi login
         const response = await fetch(`/api/proxy?login=true&password=${encodeURIComponent(password)}`);
 
         if (!response.ok) {
             throw new Error(`Login gagal! Status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const text = await response.text(); // Ambil sebagai teks dulu
+        console.log("🔍 Response dari proxy:", text); // Debugging
+
+        // Pastikan response berupa JSON
+        if (!text.startsWith("{")) {
+            throw new Error("Response bukan JSON: " + text);
+        }
+
+        const data = JSON.parse(text); // Ubah menjadi objek
 
         if (data.success) {
+            // Simpan user di localStorage
             localStorage.setItem("loggedInUser", JSON.stringify({
                 jenisPengusulan: data.jenisPengusulan,
                 pic: data.pic
             }));
 
+            // Redirect ke halaman form
             window.location.href = "form.html";
         } else {
             loginMessage.textContent = "Password salah!";
             loginMessage.style.color = "red";
         }
     } catch (error) {
-        console.error("Error:", error);
-        loginMessage.textContent = "Terjadi kesalahan saat login.";
+        console.error("🚨 Error saat login:", error);
+        loginMessage.textContent = "Terjadi kesalahan saat login. Periksa koneksi atau coba lagi.";
         loginMessage.style.color = "red";
     } finally {
         passwordInput.value = ""; // Hapus input password setelah mencoba login

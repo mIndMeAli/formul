@@ -1,8 +1,7 @@
 document.getElementById("loginForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const passwordInput = document.getElementById("password");
-    const password = passwordInput.value.trim();
+    const password = document.getElementById("password").value.trim();
     const loginMessage = document.getElementById("loginMessage");
 
     loginMessage.textContent = "";
@@ -18,40 +17,30 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     loginMessage.style.color = "blue";
 
     try {
-        const response = await fetch(`/api/proxy?login=true&password=${encodeURIComponent(password)}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
-        });
+        const response = await fetch(/api/proxy?login=true&password=${encodeURIComponent(password)});
 
         if (!response.ok) {
-            throw new Error(`Login gagal! Status: ${response.status}`);
+            throw new Error(HTTP error! Status: ${response.status});
         }
 
-        const text = await response.text();
-        console.log("🔍 Response dari server:", text);
-
-        if (!text.startsWith("{")) {
-            throw new Error("Response bukan JSON: " + text);
-        }
-
-        const data = JSON.parse(text);
+        const data = await response.json();
 
         if (data.success) {
+            // Simpan informasi user ke localStorage
             localStorage.setItem("loggedInUser", JSON.stringify({
                 jenisPengusulan: data.jenisPengusulan,
                 pic: data.pic
             }));
 
+            // Redirect ke form.html
             window.location.href = "form.html";
         } else {
             loginMessage.textContent = "Password salah!";
             loginMessage.style.color = "red";
         }
     } catch (error) {
-        console.error("🚨 Error:", error);
+        console.error("Error:", error);
         loginMessage.textContent = "Terjadi kesalahan saat login.";
         loginMessage.style.color = "red";
-    } finally {
-        passwordInput.value = "";
     }
 });

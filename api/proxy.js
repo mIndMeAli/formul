@@ -6,12 +6,26 @@ app.use(express.json());
 
 const url = "https://script.google.com/macros/s/AKfycbzkU7zkYnpq3qDHt_gxl7to_iV2H0XBkuVYyBQsPHo3gFX37lWefPvoJjKpiuFLuJLc/exec";
 
+// **Fungsi untuk melakukan fetch dengan timeout**
+const fetchWithTimeout = async (resource, options = {}, timeout = 8000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(resource, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+};
+
 // **Handle POST request**
 app.post("/api/proxy", async (req, res) => {
     try {
         console.log("🔄 Incoming POST request to proxy:", req.body);
 
-        const response = await fetch(url, {
+        const response = await fetchWithTimeout(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(req.body),
@@ -44,9 +58,9 @@ app.get("/api/proxy", async (req, res) => {
 
         if (login === "true" && password) {
             const fullUrl = `${url}?login=true&password=${encodeURIComponent(password)}`;
-            console.log("🔗 Fetching URL:", fullUrl); // Debugging URL
+            console.log("🔗 Fetching URL:", fullUrl);
 
-            const response = await fetch(fullUrl);
+            const response = await fetchWithTimeout(fullUrl, {}, 8000); // Timeout 8 detik
             
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

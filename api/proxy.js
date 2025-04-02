@@ -4,49 +4,22 @@ import fetch from "node-fetch";
 const app = express();
 app.use(express.json());
 
-const url = "https://script.google.com/macros/s/AKfycbzkU7zkYnpq3qDHt_gxl7to_iV2H0XBkuVYyBQsPHo3gFX37lWefPvoJjKpiuFLuJLc/exec";
+const url = "https://script.google.com/macros/s/AKfycbwIgVqvqWj4rB8SW6OjS_LDv6SwS6mzHFg6Ts1T7f0GHo4kDyoq8CHVCkT_n2RCt7vf/exec";
 
-// **Fungsi untuk melakukan fetch dengan timeout**
-const fetchWithTimeout = async (resource, options = {}, timeout = 8000) => {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    try {
-        const response = await fetch(resource, { ...options, signal: controller.signal });
-        clearTimeout(id);
-        return response;
-    } catch (error) {
-        clearTimeout(id);
-        throw error;
-    }
-};
-
-// **Handle POST request**
+// **Handle POST request (jika dibutuhkan)**
 app.post("/api/proxy", async (req, res) => {
     try {
-        console.log("🔄 Incoming POST request to proxy:", req.body);
-
-        const response = await fetchWithTimeout(url, {
+        const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(req.body),
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const text = await response.text();
-        console.log("🔍 Response dari Apps Script (POST):", text);
-
-        if (!text.startsWith("{")) {
-            throw new Error("Response bukan JSON: " + text);
-        }
-
-        const data = JSON.parse(text);
+        const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error("🚨 POST Proxy Error:", error);
-        res.status(500).json({ status: "error", message: "Server error", debug: error.message });
+        console.error("POST Proxy Error:", error);
+        res.status(500).json({ status: "error", message: "Server error" });
     }
 });
 
@@ -54,21 +27,12 @@ app.post("/api/proxy", async (req, res) => {
 app.get("/api/proxy", async (req, res) => {
     try {
         const { login, password } = req.query;
-        console.log("🔄 Incoming GET request:", req.query);
 
         if (login === "true" && password) {
-            const fullUrl = `${url}?login=true&password=${encodeURIComponent(password)}`;
-            console.log("🔗 Fetching URL:", fullUrl);
+            const response = await fetch(`${url}?login=true&password=${encodeURIComponent(password)}`);
+            const text = await response.text(); // Cek response dalam bentuk teks
 
-            const response = await fetchWithTimeout(fullUrl, {}, 8000); // Timeout 8 detik
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const text = await response.text();
-            console.log("🔍 Response dari Apps Script (GET):", text);
-
+            // **Pastikan response adalah JSON, bukan HTML atau error lainnya**
             if (!text.startsWith("{")) {
                 throw new Error("Response bukan JSON: " + text);
             }
@@ -76,11 +40,11 @@ app.get("/api/proxy", async (req, res) => {
             const data = JSON.parse(text);
             res.json(data);
         } else {
-            res.status(400).json({ status: "error", message: "Invalid request: missing login or password" });
+            res.status(400).json({ status: "error", message: "Invalid request" });
         }
     } catch (error) {
-        console.error("🚨 GET Proxy Error:", error);
-        res.status(500).json({ status: "error", message: "Server error", debug: error.message });
+        console.error("GET Proxy Error:", error);
+        res.status(500).json({ status: "error", message: "Server error" });
     }
 });
 

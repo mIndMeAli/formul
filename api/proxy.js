@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 const app = express();
 app.use(express.json());
 
-const url = "https://script.google.com/macros/s/AKfycbwIgVqvqWj4rB8SW6OjS_LDv6SwS6mzHFg6Ts1T7f0GHo4kDyoq8CHVCkT_n2RCt7vf/exec";
+const url = "https://script.google.com/macros/s/AKfycbyUjz2vOAI-8pUzDHEaR6GLFfT4ZifOGMuGU4jgpYHwgfeL_aYG9-rcIzCcVyPmJawi/exec";
 
 // **Handle POST request (jika dibutuhkan)**
 app.post("/api/proxy", async (req, res) => {

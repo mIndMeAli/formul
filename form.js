@@ -94,22 +94,39 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     const tanggalInput = document.getElementById("tanggalUsul");
+
+    function formatTanggal(tanggal) {
+        const bulan = [
+            "Januari","Februari","Maret","April","Mei","Juni","Juli",
+            "Agustus","September","Oktober","November","Desember"
+        ];
+        const [year, month, day] = tanggal.split("-");
+        return '${parseInt(day)} ${bulan[parseInt(month) - 1]} ${year}';
+    }
+    
     if (tanggalInput) {
         tanggalInput.style.pointerEvents = "auto";
+        
         tanggalInput.addEventListener("change", function () {
             let date = new Date(this.value);
             if (isNaN(date)) return;
+            
             this.setAttribute("data-value", this.value);
-            this.value = date.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+            this.value = formatTanggal(this.value);
         });
+        
         tanggalInput.addEventListener("focus", function () {
             this.type = "date";
             this.style.pointerEvents = "auto";
+
+            if (this.getAttribute("data-value")) {
+                this.value = this.getAttribute("data-value");
+            }
         });
+        
         tanggalInput.addEventListener("blur", function () {
             if (this.getAttribute("data-value")) {
-                let date = new Date(this.getAttribute("data-value"));
-                this.value = date.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+                this.value = formatTanggal(this.getAttribute("data-value"));
             } else {
                 this.value = "";
             }

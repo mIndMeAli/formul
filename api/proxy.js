@@ -15,8 +15,21 @@ app.post("/api/proxy", async (req, res) => {
             body: JSON.stringify(req.body),
         });
 
-        const data = await response.json();
-        res.json(data);
+        const text = await response.text();
+        console.log("RAW Response from Google Script:", text);
+        
+        try {
+          const data = JSON.parse(text);
+          res.json(data);
+        } catch (err) {
+          console.error("POST Proxy Error: Bukan JSON yang valid:", text);
+          res.status(500).json({
+            status: "error",
+            message: "Respon dari Google Script bukan JSON",
+            raw: text,
+          });
+        }
+
     } catch (error) {
         console.error("POST Proxy Error:", error);
         res.status(500).json({ status: "error", message: "Server error" });

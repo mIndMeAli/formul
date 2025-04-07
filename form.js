@@ -77,16 +77,18 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const formData = {
+        const requestBody = {
             sheet,
-            nip,
-            nama,
-            unitKerja,
-            jenisPengusulan,
-            tanggalUsul,
-            pic: user.pic,
-            fileDataPPPK,
-            fileDataPNS
+            data: {
+                NIP: nip,
+                Nama: nama,
+                "Unit Kerja": unitKerja,
+                "Jenis Pengusulan": jenisPengusulan,
+                "Tanggal Usul Diterima BKPSDMD": tanggalUsul,
+                "Status Usulan": "",
+                Keterangan: "",
+                PIC: user.pic
+            }
         };
 
         try {

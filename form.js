@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
             "Agustus","September","Oktober","November","Desember"
         ];
         const [year, month, day] = tanggal.split("-");
-        return '${parseInt(day)} ${bulan[parseInt(month) - 1]} ${year}';
+        return `${parseInt(day)} ${bulan[parseInt(month) - 1]} ${year}`;
     }
     
     if (tanggalInput) {

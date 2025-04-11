@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(requestBody)
             });
 
             const data = await response.json();

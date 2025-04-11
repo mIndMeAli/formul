@@ -105,10 +105,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 fileDataPPPK = null;
                 fileDataPNS = null;
             } else {
-                throw new Error(data.message || "Gagal mengirim data!");
+                throw new Error(data?.message || "Gagal mengirim data!");
             }
         } catch (error) {
             showStatusMessage("Error: " + error.message, "red");
         }
+        console.log("Mengirim data ke proxy:", requestBody);
     });
 });

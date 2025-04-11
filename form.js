@@ -12,14 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const sheetSelect = document.getElementById("sheet");
+    let fileDataPPPK = null;
+    let fileDataPNS = null;
+
     sheetSelect?.addEventListener("change", function () {
         const status = this.value;
         document.getElementById("uploadPPPK").disabled = status !== "PPPK";
         document.getElementById("uploadPNS").disabled = status !== "PNS";
     });
-
-    let fileDataPPPK = null;
-    let fileDataPNS = null;
 
     function handleFileUpload(event, sheetName) {
         const file = event.target.files[0];
@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (sheetName === "PPPK") fileDataPPPK = jsonData;
             if (sheetName === "PNS") fileDataPNS = jsonData;
+
+            showStatusMessage(`File ${sheetName} berhasil diunggah.`, "green");
         };
         reader.readAsArrayBuffer(file);
     }
@@ -61,6 +63,56 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    async function submitExcelData(sheet, fileData) {
+        if (!fileData || fileData.length < 2) {
+            showStatusMessage("Data dalam file kosong atau tidak valid.", "red");
+            return;
+        }
+
+        const headers = fileData[0];
+        const rows = fileData.slice(1);
+
+        const tanggalHariIni = formatTanggal(new Date().toISOString().split("T")[0]);
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const rowData = {};
+            headers.forEach((header, index) => {
+                rowData[header] = row[index] ?? "";
+            });
+
+            rowData["PIC"] = user.pic;
+            rowData["Tanggal Usul Diterima BKPSDMD"] = tanggalHariIni;
+            rowData["Status Usulan"] = rowData["Status Usulan"] || "";
+            rowData["Keterangan"] = rowData["Keterangan"] || "";
+
+            const requestBody = {
+                sheet,
+                data: rowData
+            };
+
+            try {
+                const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const result = await response.json();
+                if (!response.ok || result.status !== "success") {
+                    throw new Error(result.message || "Gagal kirim baris ke spreadsheet.");
+                }
+            } catch (err) {
+                showStatusMessage(`Error kirim baris ${i + 1}: ${err.message}`, "red");
+                return;
+            }
+        }
+
+        showStatusMessage("Semua data dari file berhasil dikirim!", "green");
+        fileDataPPPK = null;
+        fileDataPNS = null;
+    }
+
     document.getElementById("usulanForm")?.addEventListener("submit", async function (event) {
         event.preventDefault();
 
@@ -72,44 +124,53 @@ document.addEventListener("DOMContentLoaded", function () {
         const rawTanggal = document.getElementById("tanggalUsul")?.value || "";
         const tanggalUsul = rawTanggal ? formatTanggal(rawTanggal) : "";
 
-        if (!sheet || !nip || !nama || !unitKerja || !jenisPengusulan || !tanggalUsul) {
-            showStatusMessage("Harap isi semua kolom!", "red");
+        const isFormFilled = sheet && nip && nama && unitKerja && jenisPengusulan && tanggalUsul;
+        const isFileUploaded = (sheet === "PPPK" && fileDataPPPK) || (sheet === "PNS" && fileDataPNS);
+
+        if (!isFormFilled && !isFileUploaded) {
+            showStatusMessage("Harap isi form atau unggah file .xlsx!", "red");
             return;
         }
 
-        const requestBody = {
-            sheet,
-            data: {
-                NIP: nip,
-                Nama: nama,
-                "Unit Kerja": unitKerja,
-                "Jenis Pengusulan": jenisPengusulan,
-                "Tanggal Usul Diterima BKPSDMD": tanggalUsul,
-                "Status Usulan": "",
-                Keterangan: "",
-                PIC: user.pic
-            }
-        };
+        if (isFormFilled) {
+            const requestBody = {
+                sheet,
+                data: {
+                    NIP: nip,
+                    Nama: nama,
+                    "Unit Kerja": unitKerja,
+                    "Jenis Pengusulan": jenisPengusulan,
+                    "Tanggal Usul Diterima BKPSDMD": tanggalUsul,
+                    "Status Usulan": "",
+                    Keterangan: "",
+                    PIC: user.pic
+                }
+            };
 
-        try {
-            const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(requestBody)
-            });
+            try {
+                const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
 
-            const data = await response.json();
-            if (response.ok && data.status === "success") {
-                showStatusMessage("Data berhasil dikirim!", "green");
-                this.reset();
-                fileDataPPPK = null;
-                fileDataPNS = null;
-            } else {
-                throw new Error(data?.message || "Gagal mengirim data!");
+                const data = await response.json();
+                if (response.ok && data.status === "success") {
+                    showStatusMessage("Data berhasil dikirim!", "green");
+                    this.reset();
+                    fileDataPPPK = null;
+                    fileDataPNS = null;
+                } else {
+                    throw new Error(data?.message || "Gagal mengirim data!");
+                }
+            } catch (error) {
+                showStatusMessage("Error: " + error.message, "red");
             }
-        } catch (error) {
-            showStatusMessage("Error: " + error.message, "red");
         }
-        console.log("Mengirim data ke proxy:", requestBody);
+
+        if (isFileUploaded) {
+            const fileData = sheet === "PPPK" ? fileDataPPPK : fileDataPNS;
+            await submitExcelData(sheet, fileData);
+        }
     });
 });

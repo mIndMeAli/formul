@@ -116,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Handle upload file xlsx
         const dataToUpload = sheet === "PPPK" ? fileDataPPPK : fileDataPNS;
         if (isFileUploaded) {
             try {
@@ -186,6 +185,9 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
                 showStatusMessage("Error: " + error.message, "red");
             }
+            return;
         }
+
+        showStatusMessage("Isi form secara manual atau unggah file terlebih dahulu!", "red");
     });
 });

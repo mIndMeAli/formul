@@ -34,10 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function validateRows(rows) {
         return rows.every((row, index) => {
-            if (row.length < 4) {
-                console.warn(`Baris ${index + 2} tidak lengkap.`);
-                return false;
-            }
+            if (row.length < 4) return false;
             const [nip, nama, unit, jenis] = row;
             return /^\d{18}$/.test(nip) && nama && unit && jenis;
         });
@@ -108,18 +105,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const rawTanggal = document.getElementById("tanggalUsul")?.value || "";
         const tanggalUsul = rawTanggal ? formatTanggal(rawTanggal) : "";
 
-        const isFormFilled = sheet && nip && nama && unitKerja && jenisPengusulan && tanggalUsul;
-        const isFileUploaded = (sheet === "PPPK" && fileDataPPPK) || (sheet === "PNS" && fileDataPNS);
+        const fileData = sheet === "PPPK" ? fileDataPPPK : (sheet === "PNS" ? fileDataPNS : null);
 
-        if (!isFormFilled && !isFileUploaded) {
-            showStatusMessage("Isi form atau unggah file!", "red");
+        if (!sheet) {
+            showStatusMessage("Pilih jenis pegawai terlebih dahulu!", "red");
             return;
         }
 
-        const dataToUpload = sheet === "PPPK" ? fileDataPPPK : fileDataPNS;
-        if (isFileUploaded) {
+        if (fileData) {
             try {
-                for (const row of dataToUpload) {
+                for (const row of fileData) {
                     const [nip, nama, unitKerja, jenisPengusulan, tanggal = "", status = "", keterangan = ""] = row;
                     const requestBody = {
                         sheet,
@@ -152,42 +147,43 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Jika user isi manual
-        if (isFormFilled) {
-            const requestBody = {
-                sheet,
-                data: {
-                    NIP: nip,
-                    Nama: nama,
-                    "Unit Kerja": unitKerja,
-                    "Jenis Pengusulan": jenisPengusulan,
-                    "Tanggal Usul Diterima BKPSDMD": tanggalUsul,
-                    "Status Usulan": "",
-                    Keterangan: "",
-                    PIC: user.pic
-                }
-            };
+        const isFormFilled = nip && nama && unitKerja && jenisPengusulan && tanggalUsul;
 
-            try {
-                const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestBody)
-                });
-
-                const data = await response.json();
-                if (response.ok && data.status === "success") {
-                    showStatusMessage("Data berhasil dikirim!", "green");
-                    form.reset();
-                } else {
-                    throw new Error(data?.message || "Gagal mengirim data!");
-                }
-            } catch (error) {
-                showStatusMessage("Error: " + error.message, "red");
-            }
+        if (!isFormFilled) {
+            showStatusMessage("Harap lengkapi semua input atau unggah file!", "red");
             return;
         }
 
-        showStatusMessage("Isi form secara manual atau unggah file terlebih dahulu!", "red");
+        const requestBody = {
+            sheet,
+            data: {
+                NIP: nip,
+                Nama: nama,
+                "Unit Kerja": unitKerja,
+                "Jenis Pengusulan": jenisPengusulan,
+                "Tanggal Usul Diterima BKPSDMD": tanggalUsul,
+                "Status Usulan": "",
+                Keterangan: "",
+                PIC: user.pic
+            }
+        };
+
+        try {
+            const response = await fetch("https://formul-rays-projects-a6349016.vercel.app/api/proxy", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+            if (response.ok && data.status === "success") {
+                showStatusMessage("Data berhasil dikirim!", "green");
+                form.reset();
+            } else {
+                throw new Error(data?.message || "Gagal mengirim data!");
+            }
+        } catch (error) {
+            showStatusMessage("Error: " + error.message, "red");
+        }
     });
 });
